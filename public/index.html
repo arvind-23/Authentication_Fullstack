@@ -1,0 +1,157 @@
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>Auth Website</title>
+        <style>
+            body {
+              margin: 0;
+              padding: 0;
+              font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+              background: linear-gradient(120deg, #89f7fe, #66a6ff);
+              height: 100vh;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            }
+        
+            .container {
+              background: white;
+              padding: 40px 30px;
+              border-radius: 15px;
+              box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+              width: 350px;
+              text-align: center;
+            }
+        
+            h2 {
+              margin-bottom: 20px;
+              color: #333;
+            }
+        
+            input[type="text"], input[type="password"] {
+              width: 100%;
+              padding: 12px;
+              margin: 10px 0;
+              border: 1px solid #ccc;
+              border-radius: 8px;
+              box-sizing: border-box;
+            }
+        
+            button {
+              width: 48%;
+              padding: 10px;
+              margin: 10px 1%;
+              border: none;
+              border-radius: 8px;
+              color: white;
+              cursor: pointer;
+              font-weight: bold;
+              transition: background 0.3s ease;
+            }
+        
+            .signin {
+              background: #4CAF50;
+            }
+        
+            .signin:hover {
+              background: #45a049;
+            }
+        
+            .signup {
+              background: #2196F3;
+            }
+        
+            .signup:hover {
+              background: #1e87dc;
+            }
+        
+            .information {
+              margin-top: 20px;
+              padding: 15px;
+              border: 1px solid #ddd;
+              border-radius: 8px;
+              background: #f9f9f9;
+              display: none;
+            }
+        
+            .logout {
+              margin-top: 15px;
+              background: #f44336;
+              padding: 10px 20px;
+              border: none;
+              color: white;
+              border-radius: 8px;
+              cursor: pointer;
+            }
+        
+            .logout:hover {
+              background: #d7372f;
+            }
+          </style>
+    </head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.7/axios.min.js"></script> 
+    <script>
+        async function signup(){
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            await axios.post("http://localhost:3000/signup",{
+                username:username,
+                password:password
+            });
+            alert("You are signed up.");
+        }
+
+        async function signin(){
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            
+            if (username === "" || password === "") {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            const response = await axios.post("http://localhost:3000/signin",{
+                username:username,
+                password:password
+            });
+            localStorage.setItem("token",response.data.token);
+            alert("You are signed in.");
+        }
+
+        async function getUserInformation() {
+            const response = await axios.get("http://localhost:3000/me",{
+                headers:{
+                    token:localStorage.getItem("token")
+                }
+            })
+            document.getElementById("information").innerHTML="Username: "+response.data.username+"  Password: "+response.data.password
+        }
+
+        getUserInformation();
+
+        function logout(){
+            localStorage.removeItem("token");
+            document.getElementById("information").style.display = "none";
+            document.getElementById("username").value = "";
+            document.getElementById("password").value = "";
+            alert("User Logged Out.");
+        }
+    </script>
+    <body>
+        <div class="container">
+            <h2>Sign Up</h2>
+            <input type="text" id="username" placeholder="Username" />
+            <input type="password" id="password" placeholder="Password" />
+            
+            <div>
+                <button class="signup" onclick="signup()">Sign Up</button><button class="signin" onclick="signin()">Sign In</button>
+            </div>
+            <p><strong>User information: </strong></p>
+            <div class="indormation" id="information">
+            </div>
+            <div><button class="logout" onclick="logout()">Logout</button></div>
+        </div>
+    </body>
+</html>
